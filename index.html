@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>질문 게시판</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>질문 게시판</h1>
+            <button id="writeBtn" class="write-btn">질문하기</button>
+        </header>
+        
+        <div class="category-filter">
+            <button class="category-btn active" data-category="all">전체</button>
+            <button class="category-btn" data-category="korean">국어</button>
+            <button class="category-btn" data-category="english">영어</button>
+            <button class="category-btn" data-category="math">수학</button>
+            <button class="category-btn" data-category="social">사회</button>
+            <button class="category-btn" data-category="science">과학</button>
+            <button class="category-btn" data-category="engineering">공학</button>
+        </div>
+        
+        <div class="question-list" id="questionList">
+            <!-- 질문 카드들이 여기에 동적으로 추가됩니다 -->
+        </div>
+    </div>
+
+    <!-- 질문 작성 모달 -->
+    <div class="modal" id="questionModal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>질문 작성</h2>
+            <form id="questionForm">
+                <div class="form-group">
+                    <label for="category">과목</label>
+                    <select id="category" required>
+                        <option value="">과목을 선택해주세요</option>
+                        <option value="korean">국어</option>
+                        <option value="english">영어</option>
+                        <option value="math">수학</option>
+                        <option value="social">사회</option>
+                        <option value="science">과학</option>
+                        <option value="engineering">공학</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="title">제목</label>
+                    <input type="text" id="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="content">내용</label>
+                    <textarea id="content" rows="5" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="author">작성자</label>
+                    <input type="text" id="author" required>
+                </div>
+                <button type="submit">질문 등록</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 답변 작성 모달 -->
+    <div class="modal" id="answerModal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>답변 작성</h2>
+            <form id="answerForm">
+                <div class="form-group">
+                    <label for="answerContent">답변 내용</label>
+                    <textarea id="answerContent" rows="4" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="answerAuthor">작성자</label>
+                    <input type="text" id="answerAuthor" required>
+                </div>
+                <button type="submit">답변 등록</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
