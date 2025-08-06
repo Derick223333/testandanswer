@@ -1,9 +1,9 @@
-// Firebase SDK 모듈 import
+// Firebase SDK import 및 초기화
+// Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc, doc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
 
-// Firebase 설정 및 초기화
+// Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyCJAnuTDddwDMMM48Cx5ZOq-p4wpiVRDAc",
   authDomain: "questionandanswer-4565c.firebaseapp.com",
@@ -13,8 +13,9 @@ const firebaseConfig = {
   appId: "1:357060077510:web:f48ddafd8defaf4a5874c7",
   measurementId: "G-BPW8MWHE42"
 };
+
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
 const analytics = getAnalytics(app);
 
 // 전역 변수
@@ -42,7 +43,8 @@ const categoryBtns = document.querySelectorAll('.category-btn');
 
 // 초기화
 document.addEventListener('DOMContentLoaded', function() {
-    loadQuestionsFromDB();
+    loadSampleData();
+    renderQuestions();
     setupEventListeners();
 });
 
@@ -79,17 +81,21 @@ function setupEventListeners() {
             // 활성 버튼 변경
             categoryBtns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
+            
             // 질문 필터링
             const category = btn.dataset.category;
-            loadQuestionsFromDB(category);
+            renderQuestions(category);
         });
     });
 }
 
 // 질문 제출 처리
-async function handleQuestionSubmit(e) {
+function handleQuestionSubmit(e) {
     e.preventDefault();
+    
+    const formData = new FormData(questionForm);
     const question = {
+        id: Date.now(),
         category: document.getElementById('category').value,
         title: document.getElementById('title').value,
         content: document.getElementById('content').value,
@@ -97,29 +103,41 @@ async function handleQuestionSubmit(e) {
         date: new Date().toLocaleDateString('ko-KR'),
         answers: []
     };
-    await addDoc(collection(db, "questions"), question);
-    await loadQuestionsFromDB();
+    
+    questions.unshift(question); // 최신 질문을 맨 위에 추가
+    renderQuestions();
+    
+    // 폼 초기화 및 모달 닫기
     questionForm.reset();
     questionModal.style.display = 'none';
+    
+    // 성공 메시지 (선택사항)
     alert('질문이 성공적으로 등록되었습니다!');
 }
 
 // 답변 제출 처리
-async function handleAnswerSubmit(e) {
+function handleAnswerSubmit(e) {
     e.preventDefault();
+    
     const answer = {
+        id: Date.now(),
         content: document.getElementById('answerContent').value,
         author: document.getElementById('answerAuthor').value,
         date: new Date().toLocaleDateString('ko-KR')
     };
-    const questionRef = doc(db, "questions", currentQuestionId);
-    // Firestore의 answers 배열에 답변 추가
-    await updateDoc(questionRef, {
-        answers: arrayUnion(answer)
-    });
-    await loadQuestionsFromDB();
+    
+    // 해당 질문에 답변 추가
+    const question = questions.find(q => q.id === currentQuestionId);
+    if (question) {
+        question.answers.push(answer);
+        renderQuestions();
+    }
+    
+    // 폼 초기화 및 모달 닫기
     answerForm.reset();
     answerModal.style.display = 'none';
+    
+    // 성공 메시지
     alert('답변이 성공적으로 등록되었습니다!');
 }
 
@@ -186,4 +204,64 @@ function openAnswerModal(questionId) {
     answerModal.style.display = 'block';
 }
 
-// Firestore 기반이므로 샘플 데이터 함수는 제거합니다.
+// 샘플 데이터 로드
+function loadSampleData() {
+    questions = [
+        {
+            id: 1,
+            category: 'math',
+            title: '이차방정식의 판별식에 대해 질문합니다',
+            content: '이차방정식 ax² + bx + c = 0에서 판별식 D = b² - 4ac의 의미를 자세히 설명해주세요.',
+            author: '수학학습자',
+            date: '2024-01-15',
+            answers: [
+                {
+                    id: 101,
+                    content: '판별식 D는 이차방정식의 실근의 개수를 판단하는 도구입니다. D > 0이면 서로 다른 두 실근, D = 0이면 중근, D < 0이면 실근이 없습니다.',
+                    author: '수학선생님',
+                    date: '2024-01-15'
+                }
+            ]
+        },
+        {
+            id: 2,
+            category: 'english',
+            title: '현재완료와 과거시제의 차이점',
+            content: 'I have been to London과 I went to London의 차이점을 알고 싶습니다.',
+            author: '영어초보',
+            date: '2024-01-14',
+            answers: []
+        },
+        {
+            id: 3,
+            category: 'science',
+            title: '광합성 과정에서의 엽록체 역할',
+            content: '식물의 광합성 과정에서 엽록체가 하는 구체적인 역할이 무엇인지 궁금합니다.',
+            author: '생물학도',
+            date: '2024-01-13',
+            answers: [
+                {
+                    id: 301,
+                    content: '엽록체는 광합성이 일어나는 세포소기관으로, 엽록소를 포함하여 빛에너지를 화학에너지로 변환하는 역할을 합니다.',
+                    author: '과학교사',
+                    date: '2024-01-13'
+                },
+                {
+                    id: 302,
+                    content: '더 자세히 설명하면, 엽록체 내부의 틸라코이드에서 명반응이, 스트로마에서 암반응이 일어납니다.',
+                    author: '생물전공자',
+                    date: '2024-01-14'
+                }
+            ]
+        },
+        {
+            id: 4,
+            category: 'korean',
+            title: '한글 맞춤법 질문',
+            content: '"되"와 "돼"의 사용법을 정확히 알고 싶습니다. 언제 어떤 것을 써야 하나요?',
+            author: '맞춤법고민',
+            date: '2024-01-12',
+            answers: []
+        }
+    ];
+}
