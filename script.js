@@ -261,7 +261,8 @@ function renderQuestions(filterCategory = 'all') {
             </div>
             <div class="question-content">${question.content}</div>
             <div class="question-actions">
-                <button class="answer-btn" onclick="openAnswerModal('${question.id}')">
+                <!-- onclick 대신 data-question-id 속성을 사용하고 JavaScript에서 이벤트 리스너를 추가합니다. -->
+                <button class="answer-btn" data-question-id="${question.id}">
                     답변하기
                 </button>
                 <span class="answer-count">
@@ -283,15 +284,23 @@ function renderQuestions(filterCategory = 'all') {
             ` : ''}
         </div>
     `).join('');
+
+    // 새로 렌더링된 버튼에 이벤트 리스너 추가
+    document.querySelectorAll('.answer-btn').forEach(button => {
+        button.addEventListener('click', (event) => {
+            const questionId = event.target.dataset.questionId;
+            openAnswerModal(questionId);
+        });
+    });
 }
 
 // 답변 모달 열기
-// 이 함수를 window 객체에 할당하여 HTML의 onclick에서 접근할 수 있도록 합니다.
-window.openAnswerModal = function(questionId) {
+// 이 함수는 이제 HTML의 onclick에서 직접 호출되지 않으므로 window 객체에 할당할 필요가 없습니다.
+function openAnswerModal(questionId) {
     currentQuestionId = questionId;
     answerForm.reset(); // 폼 초기화
     answerModal.style.display = 'block';
-};
+}
 
 // 커스텀 메시지 박스 (alert 대체)
 function showMessage(message) {
