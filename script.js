@@ -286,11 +286,12 @@ function renderQuestions(filterCategory = 'all') {
 }
 
 // 답변 모달 열기
-function openAnswerModal(questionId) {
+// 이 함수를 window 객체에 할당하여 HTML의 onclick에서 접근할 수 있도록 합니다.
+window.openAnswerModal = function(questionId) {
     currentQuestionId = questionId;
     answerForm.reset(); // 폼 초기화
     answerModal.style.display = 'block';
-}
+};
 
 // 커스텀 메시지 박스 (alert 대체)
 function showMessage(message) {
